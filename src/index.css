@@ -66,3 +66,38 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.calendar {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.days {
+  display: flex;
+}
+
+.day {
+  width: 14.28%; /* 1/7 */
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+.calendar-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.calendar-grid .day {
+  width: 14.28%; /* 1/7 */
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
