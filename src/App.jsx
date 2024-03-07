@@ -4,6 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import jaLocale from '@fullcalendar/core/locales/ja';
+import { getFirestore, collection, addDoc } from 'firebase/firestore'; 
 
 function CalendarApp() {
     const today = new Date();
@@ -17,9 +18,20 @@ function CalendarApp() {
     const [color, setColor] = useState('#e6c229');
 
     // 予定の追加
-    const addEvent = () => {
+    const addEvent = async () => {
         const newEvent = { year, month, day, title, startTime, endTime, color };
         setEvents([...events, newEvent]);
+
+        // Firestore にデータを追加
+        try {
+            const db = getFirestore(); // Firestore データベースを取得
+            const eventsCollection = collection(db, 'events'); // 'events' コレクションを参照
+            await addDoc(eventsCollection, newEvent); // Firestore に新しいドキュメントを追加
+            console.log('Event data added successfully to Firestore');
+        } catch (error) {
+            console.error('Error adding document: ', error);
+        }
+
         // 保存後、フォームをクリア
         clearForm();
     };
