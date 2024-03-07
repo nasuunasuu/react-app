@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import jaLocale from '@fullcalendar/core/locales/ja';
-import { getFirestore, collection, addDoc } from 'firebase/firestore'; 
+import { getFirestore, collection, getDocs } from 'firebase/firestore'; 
 
 function CalendarApp() {
     const today = new Date();
@@ -27,11 +27,9 @@ function CalendarApp() {
             const db = getFirestore(); // Firestore データベースを取得
             const eventsCollection = collection(db, 'events'); // 'events' コレクションを参照
             await addDoc(eventsCollection, newEvent); // Firestore に新しいドキュメントを追加
-            console.log('Event data added successfully to Firestore');
         } catch (error) {
             console.error('Error adding document: ', error);
         }
-
         // 保存後、フォームをクリア
         clearForm();
     };
@@ -49,14 +47,23 @@ function CalendarApp() {
     };
 
     useEffect(() => {
-        // FullCalendarのイベントを更新
-        const updatedEvents = events.map(event => ({
-            title: event.title,
-            start: `${event.year}-${event.month}-${event.day}T${event.startTime}`,
-            end: `${event.year}-${event.month}-${event.day}T${event.endTime}`,
-            color: event.color
-        }));
-        setEvents(updatedEvents);
+        // Firestore から予定データを取得してセットする
+        const fetchData = async () => {
+            try {
+                const db = getFirestore();
+                const querySnapshot = await getDocs(collection(db, 'events'));
+                const fetchedEvents = [];
+                querySnapshot.forEach(doc => {
+                    fetchedEvents.push(doc.data());
+                });
+                setEvents(fetchedEvents);
+            } catch (error) {
+                console.error('Error fetching documents: ', error);
+            }
+        };
+
+        fetchData(); // コンポーネントがマウントされたときに Firestore からデータを取得する
+
     }, []);
 
     return (
@@ -102,17 +109,17 @@ function EventForm({ year, setYear, month, setMonth, day, setDay, title, setTitl
     return (
         <form onSubmit={handleSubmit}>
             {/* Year, Month, Dayは現在のものを取得し反映している */}
-            <label for="Year">Year</label>
-            <input value={year} id = "Year" onChange={(e) => setYear(e.target.value)} /><br />
+            <label htmlFor="Year">Year</label>
+            <input value={year} id="Year" onChange={(e) => setYear(e.target.value)} /><br />
 
-            <label for="Month">Month</label>
-            <input value={month} id = "Month" onChange={(e) => setMonth(e.target.value)} /><br />
+            <label htmlFor="Month">Month</label>
+            <input value={month} id="Month" onChange={(e) => setMonth(e.target.value)} /><br />
 
-            <label for="Day">Day</label>
-            <input value={day} id ="Day"onChange={(e) => setDay(e.target.value)} /><br />
+            <label htmlFor="Day">Day</label>
+            <input value={day} id="Day" onChange={(e) => setDay(e.target.value)} /><br />
 
-            <label for="Title">Title</label>
-            <select value={title} id = "Title"onChange={(e) => setTitle(e.target.value)}>
+            <label htmlFor="Title">Title</label>
+            <select value={title} id="Title" onChange={(e) => setTitle(e.target.value)}>
                 <option value="school">School</option>
                 <option value="work">Work</option>
                 <option value="home">Home</option>
@@ -120,17 +127,17 @@ function EventForm({ year, setYear, month, setMonth, day, setDay, title, setTitl
                 {/* タイトルのバリエーションを増やしたければここへ */}
 
             </select><br />
-            <label for="Start Time">Start Time</label>
-            <select value={startTime} id ="Start Time" onChange={(e) => setStartTime(e.target.value)}>
+            <label htmlFor="Start Time">Start Time</label>
+            <select value={startTime} id="Start Time" onChange={(e) => setStartTime(e.target.value)}>
                 {generateTimeOptions()}
             </select><br />
-            <label for="End Time">End Time</label>
-            <select value={endTime} id = "End Time" onChange={(e) => setEndTime(e.target.value)}>
+            <label htmlFor="End Time">End Time</label>
+            <select value={endTime} id="End Time" onChange={(e) => setEndTime(e.target.value)}>
                 {generateTimeOptions()}
             </select><br />
 
-            <label for="Color">Color</label>
-            <select value={color} id = "Color" onChange={(e) => setColor(e.target.value)}>
+            <label htmlFor="Color">Color</label>
+            <select value={color} id="Color" onChange={(e) => setColor(e.target.value)}>
                 <option value="#e6c229">Yellow</option>
                 <option value="#f17105">Orange</option>
                 <option value="#d11149">Red</option>
