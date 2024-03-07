@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import jaLocale from '@fullcalendar/core/locales/ja';
-import { getFirestore, collection, getDocs } from 'firebase/firestore'; 
+import { getFirestore, collection, getDocs ,addDoc} from 'firebase/firestore'; 
 
 function CalendarApp() {
     const today = new Date();
